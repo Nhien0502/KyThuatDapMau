@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Giải mã dấu ấn</title>
+<style>
+:root{--k:#f3ead7;--b:#6b4a32;--r:#b3261e;--i:#1e1b18;--g:#5b6b3a}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--k);color:var(--i);font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;padding:16px;background-image:radial-gradient(#d9cbb0 1px,transparent 1px);background-size:18px 18px}
+.box{width:100%;max-width:640px;background:#fbf6ea;border:2px solid var(--b);padding:24px;box-shadow:8px 8px 0 var(--b);animation:in .4s}
+@keyframes in{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(26px,6vw,40px);margin:.2em 0;color:var(--r)}p{line-height:1.5}
+.seal{display:inline-block;background:var(--r);color:var(--k);padding:4px 10px;font-weight:bold;transform:rotate(-3deg)}
+button{font:inherit;cursor:pointer}
+.go{background:var(--r);color:var(--k);border:0;padding:14px 28px;font-size:20px;margin-top:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--k);border:2px solid var(--b);padding:12px;margin:8px 0;font-size:17px}
+.opt:hover:not(:disabled){background:#e8dcc0}.ok{background:var(--g)!important;color:#fff}.no{background:var(--r)!important;color:#fff}
+.bar{height:8px;background:#d9cbb0;margin:8px 0}.bar i{display:block;height:100%;background:var(--r);width:100%}
+.top{display:flex;justify-content:space-between;font-size:15px}
+.fb{min-height:48px;font-style:italic;margin-top:6px}
+</style></head><body><div class="box" id="app"></div>
+<script>
+const Q=[
+{q:"Kỹ thuật đập màu tạo hình ảnh bằng cách nào?",o:["Đặt giấy lên bản khắc rồi dập màu lên giấy","Nhúng cả bản khắc vào nước","Vẽ bằng bút chì lên giấy","Chụp ảnh bản khắc"],a:0,e:"Đúng! Giấy đặt lên bề mặt bản khắc, rồi dùng màu bột hoặc mực dập lên giấy."},
+{q:"Kỹ thuật này chủ yếu áp dụng với bề mặt nào?",o:["Bề mặt phẳng hoàn toàn","Khắc chìm hoặc chạm nổi thấp","Mặt gương","Bề mặt ướt"],a:1,e:"Bề mặt khắc chìm hoặc chạm nổi thấp tạo được hiệu ứng nổi – chìm."},
+{q:"Loại giấy nào thường được dùng?",o:["Giấy bóng kiếng","Giấy dó, giấy bản","Giấy nhôm","Giấy ăn ướt"],a:1,e:"Giấy dó, giấy bản mềm, dai và thấm màu tốt."},
+{q:"Vật thể nào dùng làm khuôn được?",o:["Lá ổi, lá bàng, vải ren","Nước","Khói","Ánh sáng"],a:0,e:"Lá cây có gân, vải ren, vải bố, bìa carton lượn sóng, xốp mỏng đều dùng được."},
+{q:"Búp bông thủ công được làm thế nào?",o:["Đúc bằng kim loại","Bông/vải vụn cuộn chặt, bọc vải thô, buộc dây","Đan bằng tre","Cắt từ đá"],a:1,e:"Bông gòn hoặc vải vụn cuộn chặt, bọc vải xô/vải thô và buộc dây làm tay cầm."}];
+const T=20;let i,sc,tm,left,lock;const A=document.getElementById('app');
+function home(){A.innerHTML='<span class="seal">GAMESHOW MỸ THUẬT</span><h1>GIẢI MÃ DẤU ẤN</h1><p>Bí mật của những bản in – 5 câu hỏi, mỗi câu '+T+' giây. Trả lời nhanh để được thêm điểm!</p><button class="go" onclick="start()">BẮT ĐẦU</button>'}
+function start(){i=0;sc=0;show()}
+function show(){const c=Q[i];lock=false;left=T;
+A.style.animation='none';A.offsetHeight;A.style.animation='';
+A.innerHTML='<div class="top"><b>Câu '+(i+1)+'/'+Q.length+'</b><b>Điểm: '+sc+'</b><b id="t">'+T+'s</b></div><div class="bar"><i id="b"></i></div><h2>'+c.q+'</h2>'+c.o.map((x,k)=>'<button class="opt" onclick="pick('+k+')">'+'ABCD'[k]+'. '+x+'</button>').join('')+'<div class="fb" id="fb"></div>';
+clearInterval(tm);tm=setInterval(()=>{left--;document.getElementById('t').textContent=left+'s';document.getElementById('b').style.width=left/T*100+'%';if(left<=0)pick(-1)},1000)}
+function pick(k){if(lock)return;lock=true;clearInterval(tm);const c=Q[i],bs=A.querySelectorAll('.opt');bs.forEach(b=>b.disabled=true);bs[c.a].classList.add('ok');
+let m;if(k===c.a){const pts=100+left*5;sc+=pts;m='✔ Chính xác! +'+pts+' điểm. '+c.e}else{if(k>=0)bs[k].classList.add('no');m=(k<0?'⏰ Hết giờ! ':'✘ Chưa đúng. ')+c.e}
+document.getElementById('fb').textContent=m;setTimeout(()=>{i++;i<Q.length?show():end()},2600)}
+function end(){const mx=Q.length*200,msg=sc>=mx*.7?'Nhà giải mã xuất sắc!':sc>=mx*.4?'Khá lắm, bạn đã nắm được dấu ấn!':'Hãy cùng khám phá bài học nhé!';
+A.innerHTML='<span class="seal">TỔNG KẾT</span><h1>'+sc+' điểm</h1><p>'+msg+'</p><p>Bây giờ cùng tìm hiểu kỹ thuật đập màu nào!</p><button class="go" onclick="start()">CHƠI LẠI</button>'}
+home();
+</script></body></html>
